@@ -1,6 +1,7 @@
 package com.app.ERPsis.model;
 
 import com.app.ERPsis.model.pk.OrderItemPK;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,7 +13,7 @@ public class OrderItem implements Serializable {
     private static final long serialversionUID = 1L;
 
     @EmbeddedId
-    private OrderItemPK id;
+    private OrderItemPK id = new OrderItemPK();
 
     private Integer quantity;
 
@@ -49,6 +50,7 @@ public class OrderItem implements Serializable {
         this.price = price;
     }
 
+    
     public Order getOrder(){
         return id.getOrder();
     }
