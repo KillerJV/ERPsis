@@ -2,7 +2,11 @@ package com.app.ERPsis.service;
 
 import com.app.ERPsis.model.User;
 import com.app.ERPsis.repositories.UserRepository;
+import com.app.ERPsis.service.exceptions.DatabaseException;
+import com.app.ERPsis.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +25,7 @@ public class UserService {
 
     public User findById(Long id){
         Optional<User> obj = userRepository.findById(id);
-        return obj.get();
+        return obj.orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
     public User insert(User obj){
@@ -29,6 +33,25 @@ public class UserService {
     }
 
     public void delete(Long id){
-        userRepository.deleteById(id);
+        try {
+            userRepository.deleteById(id);
+        }catch(EmptyResultDataAccessException e){
+            throw new ResourceNotFoundException(id);
+        }catch(DataIntegrityViolationException e){
+            throw new DatabaseException(e.getMessage());
+        }
     }
+
+    public User update(Long id, User obj) {
+        User entity = userRepository.getOne(id);
+        updateData(entity, obj);
+        return userRepository.save(entity);
+    }
+
+    private void updateData(User entity, User obj) {
+        entity.setName(obj.getName());
+        entity.setEmail(obj.getEmail());
+        entity.setPhone(obj.getPhone());
+    }
+
 }
